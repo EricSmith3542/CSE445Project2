@@ -1,7 +1,7 @@
 #include "orderclass.hpp"
 using System;
 
-namespace Assignment_2
+namespace CSE445Project2
 {
     
     public class OrderClass
