@@ -1,0 +1,33 @@
+book price function:
+adjustPrice(int numOrders, int weekDay, int remainingBooks)
+{
+//numOrders++, bookPrice++
+if (numOrders<15)
+{
+	bookPrice=bookPrice*.90;
+}
+else if (numOrders>45)
+{
+	bookPrice=bookPrice*1.10;
+}
+//weekDay→ MW--, FSat++
+if (weekDay==1 || weekDay==3)
+{
+	bookPrice=bookPrice*.90;
+}
+else if (weekDay==5 || weekDay==6)
+{
+	bookPrice=bookPrice*1.10;
+}
+//remainingBooks--, bookPrice++
+	if (remainingBooks>50)
+	{
+		bookPrice=bookPrice*.90;
+	}
+	else if (remainingBooks<20)
+	{
+		bookPrice=bookPrice*1.10;
+	}
+}
+
+Base prices between 70 and 150
