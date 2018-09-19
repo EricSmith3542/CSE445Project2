@@ -26,7 +26,7 @@ namespace CSE445Project2
             
             this.cardNo = cardNo;
             
-            this.reviewerID = reviewerID;
+            this.recieverID = recieverID;
             
             this.amount = amount;
             
@@ -44,11 +44,11 @@ namespace CSE445Project2
             return cardNo;
         }
         
-        public string getReviewerID()
+        public string getRecieverID()
         {
-            return reviewerID;
+            return recieverID;
         }
-        public Int32 getAmount)
+        public Int32 getAmount()
         {
             return amount;
         }
