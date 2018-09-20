@@ -43,7 +43,7 @@ namespace CSE445Project2
             //lock new object or the n value... i think it might be n but unsure??????
             lock (obj)
             {
-           
+            
                 
                 if (n < N)
                 {
