@@ -25,10 +25,7 @@ namespace CSE445Project2
         //gets N from BookStore supposed to be 5
         private int n = 3;
         
-       
-        
         private OrderClass obj = new OrderClass();
-        
         
         private Semaphore read;
         private Semaphore write;
@@ -48,7 +45,7 @@ namespace CSE445Project2
             {
            
                 
-                if (n <= N)
+                if (n < N)
                 {
                     //still working on what will be inital and max
                     write = new Semaphore(inital, max);
@@ -64,8 +61,6 @@ namespace CSE445Project2
         
         //set and get one cells to be implemented
         //still working on it
-        
-        
         
     }
 }
