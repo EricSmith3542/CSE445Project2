@@ -1,5 +1,3 @@
-
-#include "encode.hpp"
 using System;
 
 
@@ -15,11 +13,11 @@ namespace CSE445Project2
          original order object
          */
         
-        public static string encode(orderClass obj)
+        public static string encode(OrderClass obj)
         {
            
             string encode;
-            encode = obj.getSenderId() + " , " + obj.getCardNo().ToString() + " , " + obj.getrecieverID()+ " , "+ obj.getAmount().ToString() + " , " obj.getUnitPrice().ToString() ;
+            encode = obj.getSenderId() + "," + obj.getCardNo().ToString() + ",PUBID:" + obj.getRecieverID()+ ","+ obj.getAmount().ToString() + "," + obj.getUnitPrice().ToString() + "," + obj.getTimeStamp() + "," + obj.getOrderNumber();
            
            
             return encode;
@@ -34,11 +32,11 @@ namespace CSE445Project2
         public static OrderClass decode(string encode)
         {
             //use delimiter of comma
-            char delimit = { ' , ' };
+            char delimit = ',';
             string[] arrayofencode = encode.Split(delimit);
-            
+
             //back to order object
-            OrderClass newobj = new OrderClass(arrayofencode[0], Convert.ToInt32(arrayofencode[1]), arrayofencode[2], Convert.ToInt32(arrayofencode[3]), Convert.ToInt32(arrayofencode[4]) );
+            OrderClass newobj = new OrderClass(arrayofencode[0], Convert.ToInt32(arrayofencode[1]), arrayofencode[2].Substring(arrayofencode[2].IndexOf(":")+1), Convert.ToInt32(arrayofencode[3]), Convert.ToDouble(arrayofencode[4]), Convert.ToInt32(arrayofencode[6]), arrayofencode[5] );
             
             return newobj;
         }

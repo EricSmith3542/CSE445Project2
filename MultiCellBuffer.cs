@@ -1,17 +1,4 @@
-/*
- MultiCellBuffer class is used for the communication between the bookstores (clients) and the
- publishers (servers): This class has n data cells (group project, n = 3).
- 
- The number of cells available must be less than (<) the max number of bookstores in your experiment.
- To write data into and to read data from one of the available cells, setOneCell and getOneCell methods can
- be defined. You must use a semaphore of value n to manage the availability of the cells.
- You must use an additional lock mechanism to provide read or write permissions for a cell.
- You cannot use a queue for thebuffer, which is a different data structure.
- The semaphore allows a bookstore to see the availability of the cells, while the lock mechanism allows the agent to gain the right to write into one of the buffer cells.
- The Publisher can read buffer cells at the same time. Synchronization/monitor is required for read/write and write/write overlap.
- */
 
-#include "MultiCellBuffer.hpp"
 using System;
 using System.Threading;
 
@@ -20,47 +7,100 @@ namespace CSE445Project2
     
    public class MultiCellBuffer
     {
-        private int buffercount;
         private int N = 5;
         //gets N from BookStore supposed to be 5
         private int n = 3;
-        
-        private OrderClass obj = new OrderClass();
-        
-        private Semaphore read;
-        private Semaphore write;
-        
-        public MultiCellBuffer(int construct)
+        private int numOfUsedCells = -1;
+        private int[] orderNums;
+
+        private string[] objArray; //= new OrderClass();
+        private Semaphore sem;
+        private ReaderWriterLock loque = new ReaderWriterLock();
+
+        //Initialize the MultiCellBuffer
+        public MultiCellBuffer()
         {
-            
-       /* The lock statement obtains the mutual-exclusion lock for a given object, executes a statement block, and then releases the lock. While a lock is held, the thread that holds the lock can again obtain and release the lock. Any other thread is blocked from obtaining the lock and waits until the lock is released.
-        */
-        //there is a lock method wtf I could have used this for CSE 330...
-           //semaphores are same as above woahhh
-            // example implementation : Semaphore semaphoreObject = new Semaphore(initialCount: 0, maximumCount: 5);
-           
-            
-            //lock new object or the n value... i think it might be n but unsure??????
-            lock (obj)
+            loque.AcquireWriterLock(Timeout.Infinite);
+            try
             {
-            
-                
-                if (n < N)
+                sem = new Semaphore(n, n);
+                objArray = new string[n];
+                for (int i = 0; i < n; i++)
                 {
-                    //still working on what will be inital and max
-                    write = new Semaphore(inital, max);
-                    read = new Semaphore(inital,max);
-                   //create string cells
-                    //user string array?
-                    
+                    objArray[i] = "";
                 }
-                else
-                   { }
+
+                orderNums = new int[N];
+            }
+            finally
+            {
+                loque.ReleaseWriterLock();
             }
         }
         
-        //set and get one cells to be implemented
-        //still working on it
+        //Fill a cell with a string of an encoded order
+        public void setObject(string encodedOrder)
+        {
+            sem.WaitOne();
+            loque.AcquireWriterLock(Timeout.Infinite);
+            try
+            {
+                numOfUsedCells++;
+                objArray[numOfUsedCells] = encodedOrder;
+                string[] split = encodedOrder.Split(',');
+                string pubId = split[2].Substring(split[2].IndexOf(":") + 1);
+                orderNums[Int32.Parse(pubId)]++;
+            }
+            finally
+            {
+                loque.ReleaseWriterLock();
+            }
+        }
+
+        //Get the total number of orders that have been created for the publisher with id = index
+        public int getOrderNumber(int index)
+        {
+            return orderNums[index];
+        }
+
+        //Retrieve data from a cell, only if it corresponds to the correct Publisher
+        public string getObject(string pubId)
+        {
+            string data = "ERROR";
+            
+            loque.AcquireReaderLock(Timeout.Infinite);
+            try
+            {
+                //Check to see if there is data in the MultiCellBuffer
+                if(numOfUsedCells >= 0)
+                {
+                    //Parse string for the publisher id related to the order
+                    string[] split = objArray[numOfUsedCells].Split(',');
+                    string cellPubId = split[2].Substring(split[2].IndexOf(":") + 1);
+
+                    //If the publisher ids match, retrieve the data and free the cell
+                    if(cellPubId == pubId)
+                    {
+                        loque.UpgradeToWriterLock(Timeout.Infinite);
+
+                        data = objArray[numOfUsedCells];
+
+                        numOfUsedCells--;
+                        sem.Release();
+                    }
+                    else
+                    {
+                        data = "ERROR";
+                    }
+                    
+                }
+            }
+            finally
+            {
+                loque.ReleaseLock();
+            }
+            return data;
+        }
         
     }
 }
